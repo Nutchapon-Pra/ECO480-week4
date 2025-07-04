@@ -1,0 +1,58 @@
+##Importing the datafile into R
+setwd("/cloud/project")
+tempdata <- read.csv("NH.Ts+dSST.csv", skip = 1, na.strings = "***")
+View(tempdata)
+tempdata <- na.omit(tempdata)
+
+
+##Drawing a line chart of temperature and time
+tempdata <- tempdata[tempdata$Year <= 2025, ]
+tempdata$Jan <- ts(tempdata$Jan, start = c(1880), frequency = 1) 
+tempdata$DJF <- ts(tempdata$DJF, start = c(1880), frequency = 1) 
+tempdata$MAM <- ts(tempdata$MAM, start = c(1880), frequency = 1) 
+tempdata$JJA <- ts(tempdata$JJA, start = c(1880), frequency = 1) 
+tempdata$SON <- ts(tempdata$SON, start = c(1880), frequency = 1) 
+tempdata$J.D <- ts(tempdata$J.D, start = c(1880), frequency = 1)
+
+# Set line width and colour
+plot(tempdata$Jan, type = "l", col = "blue", lwd = 2, ylab = "Annual temperature anomalies", xlab = "Year")
+
+# Add a title
+title("Average temperature anomaly in January in the northern hemisphere (1880-2025)")
+
+# Add a horizontal line (at y = 0)
+abline(h = 0, col = "darkorange2", lwd = 2)
+
+# Add a label to the horizontal line
+text(2000, -0.1, "1951-1980 average")
+
+# Set line width and colour
+plot(tempdata$J.D, type = "l", col = "blue", lwd = 2, ylab = "Annual temperature anomalies", xlab = "Year")
+
+# \n creates a line break
+title("Average annual temperature anomaly \n in the northern hemisphere (1880-2016)")
+
+# Add a horizontal line (at y = 0)
+abline(h = 0, col = "darkorange2", lwd = 2)
+
+# Add a label to the horizontal line
+text(2000, -0.1, "1951-1980 average")
+
+##Creating frequency tables and histograms
+tempdata$Period <- factor(NA, levels = c("1921-1950", "1951-1980", "1981-2010"), ordered = TRUE)
+tempdata$Period[(tempdata$Year > 1920) & (tempdata$Year < 1951)] <- "1921-1950"
+tempdata$Period[(tempdata$Year > 1950) & (tempdata$Year < 1981)] <- "1951-1980"
+tempdata$Period[(tempdata$Year > 1980) & (tempdata$Year < 2011)] <- "1981-2010"
+temp_summer <- c(tempdata$Jun, tempdata$Jul, tempdata$Aug)
+# Mirror the Period information for temp_sum
+temp_Period <- c(tempdata$Period, tempdata$Period, tempdata$Period)
+
+# Repopulate the factor information 
+hist(temp_summer[(temp_Period == "1951-1980")], plot = FALSE)
+# Load the library we use for the following command.
+library(mosaic)
+
+histogram(~ temp_summer | temp_Period, type = "count", 
+          breaks = seq(-0.5, 1.3, 0.10), 
+          main = "Histogram of Temperature anomalies", 
+          xlab = "Summer temperature distribution")
